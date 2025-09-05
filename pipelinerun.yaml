@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  # The name of your PipelineRun. It must be unique within the namespace.
+  # Using generateName is a good practice for multiple runs.
+  generateName: ansible-playbook-run-
+spec:
+  # Reference the name of the Pipeline to run.
+  pipelineRef:
+    name: deploy-ansible-playbook
+
+  # The parameters to pass to the pipeline.
+  # The names must match the params defined in the Pipeline's spec.
+  params:
+    # The Git repository URL where your playbook is located.
+    - name: repo-url
+      value: "https://github.com/my-org/my-ansible-playbooks.git"
+
+    # The path to the playbook file within the repository.
+    # For example, "playbooks/deploy.yaml".
+    - name: entrypoint
+      value: "path/to/your/playbook.yaml"
+
+    # Optional: The path to a YAML file with variables to pass to the playbook.
+    # Leave this empty ("") if you don't need it.
+    - name: params-file
+      value: ""

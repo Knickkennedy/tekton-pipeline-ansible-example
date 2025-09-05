@@ -1,0 +1,61 @@
+# deploy-ansible-playbook-inline.yaml
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: deploy-ansible-playbook
+spec:
+  params:
+    - name: repo-url
+      description: The Git repository URL to clone.
+      type: string
+    - name: entrypoint
+      description: The path to the Ansible playbook file to execute.
+      type: string
+    - name: params-file
+      description: The optional path to a YAML file with extra Ansible variables.
+      type: string
+      default: ""
+  tasks:
+    - name: run-ansible
+      taskSpec:
+        params:
+          - name: repo-url
+            description: The Git repository URL to clone.
+            type: string
+          - name: entrypoint
+            description: The path to the Ansible playbook file to execute.
+            type: string
+          - name: params-file
+            description: The optional path to a YAML file with extra Ansible variables.
+            type: string
+            default: ""
+        steps:
+          - name: run-playbook
+            image: docker.io/knickkennedy/k8s-tools@sha256:542002707d909d25b3ed05654f77c514a507b1fc916ad3d44adb5a672adb4299
+            workingDir: /workspace
+            script: |
+              #!/bin/bash
+              set -e
+
+              # Clone the repository
+              echo "Cloning repository..."
+              git clone "$(params.repo-url)" .
+
+              # Build the ansible command
+              ANSIBLE_CMD="ansible-playbook $(params.entrypoint)"
+
+              # Check if the optional params file exists and append it
+              if [[ "$(params.params-file)" != "" && -f "$(params.params-file)" ]]; then
+                echo "Found params file, adding to command."
+                ANSIBLE_CMD="$ANSIBLE_CMD -e @$(params.params-file)"
+              fi
+
+              echo "Executing: $ANSIBLE_CMD"
+              $ANSIBLE_CMD
+      params:
+        - name: repo-url
+          value: $(params.repo-url)
+        - name: entrypoint
+          value: $(params.entrypoint)
+        - name: params-file
+          value: $(params.params-file)
