@@ -44,6 +44,11 @@ spec:
               # Build the ansible command
               ANSIBLE_CMD="ansible-playbook $(params.entrypoint)"
 
+              if [ -f "ansible.cfg" ]; then
+                echo "Found ansible.cfg, using it as config file."
+                ANSIBLE_CMD="$ANSIBLE_CMD --config-file=ansible.cfg"
+              fi
+
               # Check if the optional params file exists and append it
               if [[ "$(params.params-file)" != "" && -f "$(params.params-file)" ]]; then
                 echo "Found params file, adding to command."
