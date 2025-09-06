@@ -46,7 +46,7 @@ spec:
 
               if [ -f "ansible.cfg" ]; then
                 echo "Found ansible.cfg, using it as config file."
-                ANSIBLE_CMD="$ANSIBLE_CMD --config-file=ansible.cfg"
+                export ANSIBLE_CONFIG="ansible.cfg"
               fi
 
               # Check if the optional params file exists and append it
